@@ -3,6 +3,7 @@
 #include <bitset>
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
 QString Operaciones::realizarOperacion(QString num1, QString num2, char operacion) {
     switch (operacion) {
     case '+':
@@ -22,12 +23,12 @@ QString Operaciones::sumar(QString num1, QString num2) {
     bool Completado_P=false;
     QString signoString1 = num1.mid(0, 1);
     QString expString1 = num1.mid(1, 8);
-    QString mantString1 = "0"+num1.mid(9, 23);
+    QString mantString1 = "1"+num1.mid(9, 23);
     QString signoString2 = num2.mid(0, 1);
     QString expString2 = num2.mid(1, 8);
-    QString mantString2 = "0"+num2.mid(9, 23);
+    QString mantString2 = "1"+num2.mid(9, 23);
     std::bitset<1> signobitset1(signoString1.toStdString());
-    std::bitset<8> expbitset1(expString2.toStdString());
+    std::bitset<8> expbitset1(expString1.toStdString());
     std::bitset<24> mantbitset1(mantString1.toStdString());
     std::bitset<1> signobitset2(signoString2.toStdString());
     std::bitset<8> expbitset2(expString2.toStdString());
@@ -54,16 +55,86 @@ QString Operaciones::sumar(QString num1, QString num2) {
     }
     unsigned int expS=exp1;
     unsigned int d=exp1-exp2;
+
     if(signo1!=signo2){
         mant2=~mant2;
         mant2=mant2+1;
     }
+
     P=mant2;
+    std::bitset<24> binaryValue(P);
+    QString binaryPString = QString::fromStdString(binaryValue.to_string());
+    QString bitG="";
+    QString bitR="";
+    QString bitST="";
+    if(d==1){
+        bitG=binaryPString.at(24-d);
+        if(bitG.toStdString()=="0"){
+            g=0;
+        }else{
+            g=1;
+        }
+    }else if(d==2){
+        bitG=binaryPString.at(24-d);
+        bitR=binaryPString.at(24-d+1);
+        if(bitG.toStdString()=="0"){
+            g=0;
+        }else{
+            g=1;
+        }
+        if(bitR.toStdString()=="0"){
+            r=0;
+        }else{
+            r=1;
+        }
+    }else if(d>=3){
+        bitG=binaryPString.at(24-d);
+        bitR=binaryPString.at(24-d+1);
+        bitST=binaryPString.at(24-d+2);
+        if(bitG.toStdString()=="0"){
+            g=0;
+        }else{
+            g=1;
+        }
+        if(bitR.toStdString()=="0"){
+            r=0;
+        }else{
+            r=1;
+        }
+        if(bitST.toStdString()=="0"){
+            st=0;
+        }else{
+            st=1;
+        }
+    }
 
-    printf("Unsigned int value: %u\n", mant2);
+    QString binaryPString2="";
+    QString subPbinary="";
+    if(signo1!=signo2){
+        QString stringUnos="";
+        for(int i=d;i>0;i--){
+            stringUnos=stringUnos+"1";
+        }
+        subPbinary=binaryPString.mid(0,24-d);
+        binaryPString2=stringUnos+subPbinary;
+    }else{
+        QString stringCeros="";
+        for(int i=d;i>0;i--){
+            stringCeros=stringCeros+"0";
+        }
+        subPbinary=binaryPString.mid(0,24-d);
+        binaryPString2=stringCeros+subPbinary;
+
+    }
+    printf("Unsigned int value: %u\n", exp1);
+    printf("Unsigned int value: %u\n", exp2);
+    printf("Unsigned int value: %u\n", P);
+    printf("Unsigned int value: %u\n", d);
+    std::cout << bitG.toStdString() << std::endl;
+    std::cout << binaryPString2.toStdString() << std::endl;
 
 
-    return mantString1;
+    return binaryPString;
 }
 
 QString Operaciones::multiplicar(QString num1, QString num2) {
