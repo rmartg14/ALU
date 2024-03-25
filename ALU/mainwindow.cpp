@@ -12,8 +12,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->btnSuma,SIGNAL(clicked()),this, SLOT(convertiraIEE()));
     connect(ui->btnSuma,SIGNAL(clicked()),this, SLOT(realizarSuma()));
+    connect(ui->btnSuma,SIGNAL(clicked()),this, SLOT(convertiraDec()));
 
-    //connect(ui->btnSuma,SIGNAL(clicked()),this, SLOT(convertiraDec()));
 
 }
 
@@ -34,8 +34,13 @@ void MainWindow::convertiraIEE(){
 
 void MainWindow::convertiraDec(){
     QString num=ui->IEERes->text();
-    float result=Conversor::convertir2(num);
-    ui->decimalRes->setText(QString::number(result));
+    if(num=="Inf"){
+        ui->decimalRes->setText(num);
+    }else{
+        float result=Conversor::convertir2(num);
+        ui->decimalRes->setText(QString::number(result));
+    }
+
 }
 
 
