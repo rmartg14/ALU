@@ -27,6 +27,10 @@ QString Operaciones::sumar(QString num1, QString num2) {
     QString expString2 = num2.mid(1, 8);
     QString mantString1="";
     QString mantString2="";
+    if(expString1.toStdString()=="11111111"&&expString2.toStdString()=="11111111"&&signoString1==signoString2){
+        QString infinito="Inf";
+        return infinito;
+    }
     if(expString1.toStdString()=="00000000"||expString1.toStdString()=="11111111"){
         expString1="00000001";
         mantString1 = "0"+num1.mid(9, 23);
@@ -379,7 +383,6 @@ QString Operaciones::sumar(QString num1, QString num2) {
 
     return signoF+expFinal+mantisaFinal.mid(1,23);
 }
-
 QString Operaciones::multiplicar(QString num1, QString num2) {
     int P =0;
     int g=0, r=0, st=0;
