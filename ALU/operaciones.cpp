@@ -20,6 +20,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
     int g=0, r=0, st=0;
     int n=24;
     bool Operandos_intercambiados=false;
+    bool denormal=false;
     bool Complementado_P=false;
     QString signoString1 = num1.mid(0, 1);
     QString expString1 = num1.mid(1, 8);
@@ -41,6 +42,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
     if(expString2.toStdString()=="00000000"||expString2.toStdString()=="11111111"){
         expString2="00000001";
         mantString2 = "0"+num2.mid(9, 23);
+        denormal=true;
     }else{
         mantString2 = "1"+num2.mid(9, 23);
     }
@@ -73,8 +75,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
     }
     unsigned int expS=exp1;
     unsigned int d=exp1-exp2;
-    //std::bitset<8> binaryExp(expS);
-    //QString expFinal = QString::fromStdString(binaryExp.to_string());
+
 
     P=mant2;
     std::bitset<24> binaryValue(P);
@@ -282,13 +283,25 @@ QString Operaciones::sumar(QString num1, QString num2) {
     }else{
         bit1=binaryPStringSuma.at(0);
         int k=0;
-        while(bit1.toStdString()=="0"&&k<23){
-            bit1=binaryPStringSuma.at(k+1);
-            k++;
+        if(!denormal){
+            while(bit1.toStdString()=="0"&&k<23){
+                bit1=binaryPStringSuma.at(k+1);
+                k++;
+            }
+            if(bit1.toStdString()=="0"){
+                k++;
+            }
+        }else{
+            while(bit1.toStdString()=="1"&&k<23){
+                bit1=binaryPStringSuma.at(k+1);
+                k++;
+            }
+            if(bit1.toStdString()=="1"){
+                k++;
+            }
+
         }
-        if(bit1.toStdString()=="0"){
-            k++;
-        }
+
         if(k==0){
             if(r==1||st==1){
                 st=1;
