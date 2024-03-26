@@ -419,15 +419,15 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     unsigned int signo2;
     unsigned int mant2;
 
-    std::bitset<24> binaryBValue(P);
-    QString binaryBString = QString::fromStdString(binaryBValue.to_string());
-
+    //1
     unsigned int signoR;
     signoR=signo1 * signo2;
 
-    unsigned int expR= 127+(exp1-127) + (exp2 - 127);
+    //2
+    unsigned int expR;
     expR= 127+(exp1-127) + (exp2 - 127);
 
+    //3
     unsigned int mantR;
     mant1 = mant1|8388608;
     mant2 = mant2|8388608;
@@ -448,33 +448,48 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
         a = a >> 1;
     }
 
+    //comprobar si
     if (!((b>>23)&1)) {
         b = b << 1;
 
     } else {
         expR = expR + 1;
     }
-
+    //bits d redondeo y sticky
     r = ((a>>23)&1);
     st = 0;
-
     for (int i = 22; i >= 0; i--) {
         st = st|((a>>i)&1);
     }
 
+    //redondeo
     if ((r == 1 && st == 1) || (r == 1 && st == 0 && (b>>0)&1 == 1)) {
         b = b + 1;
     }
 
     //overflow
     if (expR>254) {
-
-
-    //underflow
-    if(expR < 1) {
+        //hay overflow
     }
 
-    //operandos denormales
+    //underflow
+    if(expR<1) {
+        int expMinim=1;
+        int t = expMinim-expR;
+        if (t >= 24){
+            //hay underflow
+        }else{
+            for (int i = 0; i < t; i++) {
+                b = b>>1;
+                if((b >> 23)&1) {
+                    b = b|8388608;
+                }
+            }
+            expR = expMinim;
+        }
+    }
+
+    //operandos denormales (no se si poniendo lo de la suma vale)
 
 
     b=mantR;
