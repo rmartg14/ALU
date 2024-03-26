@@ -283,24 +283,14 @@ QString Operaciones::sumar(QString num1, QString num2) {
     }else{
         bit1=binaryPStringSuma.at(0);
         int k=0;
-        if(!denormal){
-            while(bit1.toStdString()=="0"&&k<23){
-                bit1=binaryPStringSuma.at(k+1);
-                k++;
-            }
-            if(bit1.toStdString()=="0"){
-                k++;
-            }
-        }else{
-            while(bit1.toStdString()=="1"&&k<23){
-                bit1=binaryPStringSuma.at(k+1);
-                k++;
-            }
-            if(bit1.toStdString()=="1"){
-                k++;
-            }
-
+        while(bit1.toStdString()=="0"&&k<23){
+            bit1=binaryPStringSuma.at(k+1);
+            k++;
         }
+        if(bit1.toStdString()=="0"){
+            k++;
+        }
+
 
         if(k==0){
             if(r==1||st==1){
@@ -323,7 +313,6 @@ QString Operaciones::sumar(QString num1, QString num2) {
         }
         binaryPStringSuma=binaryPStringSuma.mid(k,24-k)+strG;
         expS=expS-k;
-        //resta usando expFinal
     }
      bit1=binaryPStringSuma.at(n-1);
     if((r==1&&st==1)||(r==1&&st==0&&bit1.toStdString()=="1")){
@@ -381,17 +370,10 @@ QString Operaciones::sumar(QString num1, QString num2) {
         expFinal = QString::fromStdString(binaryExp.to_string());
 
     }
+    if(denormal==true){
+        expFinal="00000001";
+    }
 
-
-    printf("Unsigned int value: %u\n", exp1);
-    printf("Unsigned int value: %u\n", exp2);
-    printf("Unsigned int value: %u\n", P);
-    printf("Unsigned int value: %u\n", d);
-    std::cout << expString1.toStdString() << std::endl;
-    std::cout << binaryMant1String.toStdString() << std::endl;
-    std::cout << binaryPString2.toStdString() << std::endl;
-    std::cout << binaryPStringSuma.toStdString() << std::endl;
-    printf("Acarreo: %u\n", acarreo);
 
 
     return signoF+expFinal+mantisaFinal.mid(1,23);
