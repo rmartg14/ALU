@@ -380,7 +380,12 @@ QString Operaciones::sumar(QString num1, QString num2) {
 }
 
 QString Operaciones::multiplicar(QString num1, QString num2) {
-    int P =0;
+    if(num1.toStdString()=="00000000000000000000000000000000"){
+        return num1;
+    }
+    if(num2.toStdString()=="00000000000000000000000000000000"){
+        return num2;
+    }
     int g=0, r=0, st=0;
     int n=24;
     bool denormal;
@@ -388,26 +393,8 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     QString signoString2 = num2.mid(0, 1);
     QString expString1 = num1.mid(1, 8);
     QString expString2 = num2.mid(1, 8);
-    QString mantString1="";
-    QString mantString2="";
-    if(expString1.toStdString()=="11111111"&&expString2.toStdString()=="11111111"&&signoString1==signoString2){
-        QString infinito="Inf";
-        return infinito;
-    }
-    if(expString1.toStdString()=="00000000"||expString1.toStdString()=="11111111"){
-        expString1="00000001";
-        mantString1 = "0"+num1.mid(9, 23);
-    }else{
-        mantString1 = "1"+num1.mid(9, 23);
-    }
-
-    if(expString2.toStdString()=="00000000"||expString2.toStdString()=="11111111"){
-        expString2="00000001";
-        mantString2 = "0"+num2.mid(9, 23);
-        denormal=true;
-    }else{
-        mantString2 = "1"+num2.mid(9, 23);
-    }
+    QString mantString1="1"+num1.mid(9, 23);;
+    QString mantString2="1"+num2.mid(9, 23);;
     std::bitset<1> signobitset1(signoString1.toStdString());
     std::bitset<8> expbitset1(expString1.toStdString());
     std::bitset<24> mantbitset1(mantString1.toStdString());
@@ -416,15 +403,12 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     std::bitset<24> mantbitset2(mantString2.toStdString());
     unsigned int exp1=expbitset1.to_ulong();
     unsigned int exp2=expbitset2.to_ulong();
-    unsigned int signo1;
-    unsigned int mant1;
-    unsigned int signo2;
-    unsigned int mant2;
+    unsigned int signo1=signobitset1.to_ulong();
+    unsigned int mant1=mantbitset1.to_ulong();
+    unsigned int signo2=signobitset2.to_ulong();
+    unsigned int mant2=mantbitset2.to_ulong();
 
-    signo1=signobitset1.to_ulong();
-    mant1=mantbitset1.to_ulong();
-    signo2=signobitset2.to_ulong();
-    mant2=mantbitset2.to_ulong();
+
 
     //1
     QString signoF="";
@@ -441,79 +425,143 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     expR= 127+(exp1-127) + (exp2 - 127);
 
     //3
-    unsigned int mantR;
-    mant1 = mant1|8388608;
-    mant2 = mant2|8388608;
+    QString P="000000000000000000000000";
+    QString A=mantString1;
+    QString B=mantString2;
+    QString bita0="";
+    QString bit1="";
+    QString bit2="";
+    int acarreo=0;
+    for(int j = 0; j < n; j++) {
+        bita0=A.at(23);
+        if(bita0.toStdString()=="1") {
+            QString sumaP="";
+            for(int i=23;i>=0;i--){
+                bit1=P.at(i);
+                bit2=B.at(i);
+                if(bit1.toStdString()=="1"&&bit2.toStdString()=="1"){
+                    if(acarreo==1){
+                        sumaP="1"+sumaP;
+                    }else{
+                        sumaP="0"+sumaP;
+                        acarreo=1;
+                    }
+                }else if(bit1.toStdString()=="0"&&bit2.toStdString()=="0"){
+                    if(acarreo==1){
+                        sumaP="1"+sumaP;
+                        acarreo=0;
+                    }else{
+                        sumaP="0"+sumaP;
+                    }
+                }else{
+                    if(acarreo==1){
+                        sumaP="0"+sumaP;
+                    }else{
+                        sumaP="1"+sumaP;
+                    }
+                }
 
-    //paso a producto sin signo
-    unsigned int a = mant1;
-    unsigned int b = 0;
-
-    for(int i = 0; i < n; i++) {
-        if(a>>(0)&1) {
-            b = b + mant2;
+            }
+            P=sumaP;
+        }else{
+            acarreo=0;
+        }
+        bita0=P.at(23);
+        A=bita0+A.mid(0,23);
+        if(acarreo==0){
+            P="0"+P.mid(0,23);
+        }else{
+            P="1"+P.mid(0,23);
         }
 
-        b = b >> 1;
-        a = a >> 1;
+
+
+    }
+    bita0=P.at(0);
+    if(bita0.toStdString()=="0"){
+        bit1=A.at(23);
+        P=P.mid(1,23)+bit1;
+        A=A.mid(1,23)+"0";
+
+    }else{
+        expR=expR+1;
     }
 
-    //comprobar si
-    if (!((b>>23)&1)) {
-        b = b << 1;
-
-    } else {
-        expR = expR + 1;
-    }
-    //bits d redondeo y sticky
-    r = ((a>>23)&1);
-    st = 0;
-    for (int i = 22; i >= 0; i--) {
-        st = st|((a>>i)&1);
+    bit1=A.at(0);
+    if(bit1.toStdString()=="1"){
+        r=1;
+    }else{
+        r=0;
     }
 
-    //redondeo
-    if ((r == 1 && st == 1) || (r == 1 && st == 0 && (b>>0)&1 == 1)) {
-        b = b + 1;
+    for(int i=1;i<24;i++){
+        bit2=A.at(i);
+        if(bit2=="1"){
+            st=1;
+        }
     }
-    std::bitset<24> binaryValue(mantR);
-    QString binaryPString = QString::fromStdString(binaryValue.to_string());
+
+    bita0=P.at(23);
+    if ((r == 1 && st == 1) || (r == 1 && st == 0 && bita0.toStdString()=="1")) {
+        QString binaryPFinal="";
+        int acarreo2=1;
+        for(int i=23;i>=0;i--){
+            bit1=P.at(i);
+            if(bit1.toStdString()=="0"){
+                if(acarreo2==0){
+                    binaryPFinal="0"+binaryPFinal;
+                }else{
+                    binaryPFinal="1"+binaryPFinal;
+                    acarreo2=0;
+                }
+            }else{
+                if(acarreo2==0){
+                    binaryPFinal="1"+binaryPFinal;
+                }else{
+                    binaryPFinal="0"+binaryPFinal;
+                }
+            }
+
+        }
+        P=binaryPFinal;
+    }
+
+
+
     //overflow
     if (expR>254) {
-        //hay overflow (ns si hay q hacer print(Decir: hay overflow)
+        QString expMax="11111111";
+        return signoF+expMax+P;
     }
 
     //underflow
     if(expR<1) {
-        int expMinim=1;
-        int t = expMinim-expR;
+        int t = 1-expR;
         if (t >= 24){
-            //hay underflow (ns si hay q hacer print(Decir: hay underflow)
+            return "NaN";
         }else{
-            for (int i = 0; i < t; i++) {
-                b = b>>1;
-                if((b >> 23)&1) {
-                    b = b|8388608;
-                }
+            QString aux1="";
+            QString aux2="";
+            for (int i = 23; i>23-t; i++) {
+                aux1=aux1+"0";
+                aux2=P.at(i)+aux2;
+
             }
-            expR = expMinim;
+            P=aux1+P.mid(0,24-t);
+            A=aux2+A.mid(0,24-t);
+            expR = 1;
         }
     }
 
-    b=mantR;
-    //la idea es conectar ambas: QString mantisaFinal=mantR;
+
+
+    QString binaryPString = P;
     QString mantisaFinal=binaryPString;
     QString expFinal="";
-    if(exp1==exp2&&signo1!=signo2&&mant1==mant2){
-        expFinal="00000000";
-    }else{
-        std::bitset<8> binaryExp(expR);
-        expFinal = QString::fromStdString(binaryExp.to_string());
 
-    }
-    if(denormal==true){
-        expFinal="00000001";
-    }
+    std::bitset<8> binaryExp(expR);
+    expFinal = QString::fromStdString(binaryExp.to_string());
+
 
     return signoF+expFinal+mantisaFinal.mid(1,23);
 }
