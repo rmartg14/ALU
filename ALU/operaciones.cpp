@@ -378,6 +378,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
 
     return signoF+expFinal+mantisaFinal.mid(1,23);
 }
+
 QString Operaciones::multiplicar(QString num1, QString num2) {
     int P =0;
     int g=0, r=0, st=0;
@@ -476,7 +477,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
 
     b=mantR;
 
-    return binaryBString;
+    return num1;
 }
 
 QString Operaciones::dividir(QString num1, QString num2) {
