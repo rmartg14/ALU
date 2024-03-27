@@ -383,12 +383,31 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     int P =0;
     int g=0, r=0, st=0;
     int n=24;
+    bool denormal;
     QString signoString1 = num1.mid(0, 1);
-    QString expString1 = num1.mid(1, 8);
-    QString mantString1 = "1"+num1.mid(9, 23);
     QString signoString2 = num2.mid(0, 1);
+    QString expString1 = num1.mid(1, 8);
     QString expString2 = num2.mid(1, 8);
-    QString mantString2 = "1"+num2.mid(9, 23);
+    QString mantString1="";
+    QString mantString2="";
+    if(expString1.toStdString()=="11111111"&&expString2.toStdString()=="11111111"&&signoString1==signoString2){
+        QString infinito="Inf";
+        return infinito;
+    }
+    if(expString1.toStdString()=="00000000"||expString1.toStdString()=="11111111"){
+        expString1="00000001";
+        mantString1 = "0"+num1.mid(9, 23);
+    }else{
+        mantString1 = "1"+num1.mid(9, 23);
+    }
+
+    if(expString2.toStdString()=="00000000"||expString2.toStdString()=="11111111"){
+        expString2="00000001";
+        mantString2 = "0"+num2.mid(9, 23);
+        denormal=true;
+    }else{
+        mantString2 = "1"+num2.mid(9, 23);
+    }
     std::bitset<1> signobitset1(signoString1.toStdString());
     std::bitset<8> expbitset1(expString1.toStdString());
     std::bitset<24> mantbitset1(mantString1.toStdString());
@@ -402,9 +421,20 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     unsigned int signo2;
     unsigned int mant2;
 
+    signo1=signobitset1.to_ulong();
+    mant1=mantbitset1.to_ulong();
+    signo2=signobitset2.to_ulong();
+    mant2=mantbitset2.to_ulong();
+
     //1
-    unsigned int signoR;
-    signoR=signo1 * signo2;
+    QString signoF="";
+
+    if (signo1==signo2){
+        signoF="0"+signoF;
+    }else{
+        signoF="1"+signoF;
+    }
+
 
     //2
     unsigned int expR;
@@ -416,11 +446,8 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     mant2 = mant2|8388608;
 
     //paso a producto sin signo
-    unsigned int a=0;
-    unsigned int b=0;
-
-    a = mant1;
-    b = 0;
+    unsigned int a = mant1;
+    unsigned int b = 0;
 
     for(int i = 0; i < n; i++) {
         if(a>>(0)&1) {
@@ -449,10 +476,11 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     if ((r == 1 && st == 1) || (r == 1 && st == 0 && (b>>0)&1 == 1)) {
         b = b + 1;
     }
-
+    std::bitset<24> binaryValue(mantR);
+    QString binaryPString = QString::fromStdString(binaryValue.to_string());
     //overflow
     if (expR>254) {
-        //hay overflow
+        //hay overflow (ns si hay q hacer print(Decir: hay overflow)
     }
 
     //underflow
@@ -460,7 +488,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
         int expMinim=1;
         int t = expMinim-expR;
         if (t >= 24){
-            //hay underflow
+            //hay underflow (ns si hay q hacer print(Decir: hay underflow)
         }else{
             for (int i = 0; i < t; i++) {
                 b = b>>1;
@@ -472,12 +500,22 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
         }
     }
 
-    //operandos denormales (no se si poniendo lo de la suma vale)
-
-
     b=mantR;
+    //la idea es conectar ambas: QString mantisaFinal=mantR;
+    QString mantisaFinal=binaryPString;
+    QString expFinal="";
+    if(exp1==exp2&&signo1!=signo2&&mant1==mant2){
+        expFinal="00000000";
+    }else{
+        std::bitset<8> binaryExp(expR);
+        expFinal = QString::fromStdString(binaryExp.to_string());
 
-    return num1;
+    }
+    if(denormal==true){
+        expFinal="00000001";
+    }
+
+    return signoF+expFinal+mantisaFinal.mid(1,23);
 }
 
 QString Operaciones::dividir(QString num1, QString num2) {
