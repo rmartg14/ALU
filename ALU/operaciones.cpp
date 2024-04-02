@@ -35,6 +35,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
     if(expString1.toStdString()=="00000000"||expString1.toStdString()=="11111111"){
         expString1="00000001";
         mantString1 = "0"+num1.mid(9, 23);
+        denormal=true;
     }else{
         mantString1 = "1"+num1.mid(9, 23);
     }
@@ -409,7 +410,9 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     unsigned int mant2=mantbitset2.to_ulong();
 
 
-
+    if(expString1.toStdString()=="00000000"||expString1.toStdString()=="11111111"||expString2.toStdString()=="00000000"||expString2.toStdString()=="11111111"){
+        denormal=true;
+    }
     //1
     QString signoF="";
 
@@ -421,7 +424,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
 
 
     //2
-    unsigned int expR;
+    int expR;
     expR= 127+(exp1-127) + (exp2 - 127);
 
     //3
@@ -528,6 +531,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
 
 
 
+
     //overflow
     if (expR>254) {
         QString expMax="11111111";
@@ -550,6 +554,49 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
             P=aux1+P.mid(0,24-t);
             A=aux2+A.mid(0,24-t);
             expR = 1;
+        }
+    }
+
+    if(denormal==true){
+        if(expR>1){
+            int t1, t2, t;
+            t1=expR-1;
+            QString bit0="";
+            bit0=P.at(0);
+            t2=0;
+            while(bit0.toStdString()=="0"&&t2<23){
+                bit0=P.at(t2+1);
+                t2++;
+            }
+            if(bit0.toStdString()=="0"){
+                t2++;
+                int t3=0;
+                bit0=A.at(0);
+                while(bit0.toStdString()=="0"&&t3<23){
+                    bit0=A.at(t3+1);
+                    t3++;
+                }
+                if(bit0.toStdString()=="0"){
+                    t3++;
+                }
+                t2=t2+t3;
+
+            }
+            if(t1>t2){
+                t=t2;
+            }else{
+                t=t1;
+            }
+            expR=expR-t;
+            QString PA=P+A;
+            QString ceros="";
+            for(int i=0;i<t;i++){
+                ceros=ceros+"0";
+            }
+            PA=PA.mid(0,48-t)+ceros;
+            P=PA.mid(0,24);
+
+
         }
     }
 
