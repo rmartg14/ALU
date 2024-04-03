@@ -16,6 +16,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->btnMult,SIGNAL(clicked()),this, SLOT(convertiraIEE()));
     connect(ui->btnMult,SIGNAL(clicked()),this, SLOT(realizarMultiplicacion()));
     connect(ui->btnMult,SIGNAL(clicked()),this, SLOT(convertiraDec()));
+    connect(ui->btnDivision,SIGNAL(clicked()),this, SLOT(convertiraIEE()));
+    connect(ui->btnDivision,SIGNAL(clicked()),this, SLOT(realizarDivision()));
+    connect(ui->btnDivision,SIGNAL(clicked()),this, SLOT(convertiraDec()));
+
 
 
 }
