@@ -2,8 +2,10 @@
 #include <QString>
 #include <bitset>
 #include <stdio.h>
+#include "conversor.h"
 #include <math.h>
 #include <iostream>
+#include <cmath>
 QString Operaciones::realizarOperacion(QString num1, QString num2, char operacion) {
     switch (operacion) {
     case '+':
@@ -28,7 +30,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
     QString expString2 = num2.mid(1, 8);
     QString mantString1="";
     QString mantString2="";
-    if(expString1.toStdString()=="11111111"&&expString2.toStdString()=="11111111"&&signoString1==signoString2){
+    if(expString1.toStdString()=="11111111"||expString2.toStdString()=="11111111"&&signoString1==signoString2){
         QString infinito="Inf";
         return infinito;
     }
@@ -614,5 +616,122 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
 }
 
 QString Operaciones::dividir(QString num1, QString num2) {
-    return num1;
+    if(num2.toStdString()=="00000000000000000000000000000000"){
+        QString Nan="NaN";
+        return Nan;
+    }
+    if(num1.toStdString()=="00000000000000000000000000000000"){
+        QString cero ="00000000000000000000000000000000";
+        return cero;
+    }
+    QString signoString1 = num1.mid(0, 1);
+    QString signoString2 = num2.mid(0, 1);
+    QString num1prueba = "0"+num1.mid(1, 31);
+    QString num2prueba = "0"+num2.mid(1, 31);
+    QString pruebaInic=Operaciones::sumar(num1prueba,num2prueba);
+    if(pruebaInic.toStdString()==num1prueba.toStdString()){
+        if(signoString1.toStdString()==signoString2.toStdString()){
+            QString inf="Inf";
+            return inf;
+        }else{
+            QString inf="-Inf";
+            return inf;
+        }
+
+    }
+    QString expnum1String=num1.mid(1,8);
+    QString expnum2String=num2.mid(1,8);
+    if(expnum1String.toStdString()=="11111111"||expnum2String.toStdString()=="11111111"){
+        QString infinito="Inf";
+        return infinito;
+    }
+    QString mantString1="1"+num1.mid(9, 23);;
+    QString mantString2="1"+num2.mid(9, 23);;
+    float bprim=0.0;
+    float adec=0.0;
+    float bdec=0.0;
+    QString bitMant="";
+    for(int i=1;i<24;i++){
+        bitMant=mantString1.at(i);
+        if(bitMant.toStdString()=="1"){
+            adec=adec+1/pow(2,i);
+        }
+    }
+    adec=1+adec;
+    for(int i=1;i<24;i++){
+        bitMant=mantString2.at(i);
+        if(bitMant.toStdString()=="1"){
+            bdec=bdec+1/pow(2,i);
+        }
+    }
+    bdec=1+bdec;
+
+    if(bdec>=1.25){
+        bprim=0.80;
+    }else{
+        bprim=1.0;
+    }
+
+    float lim=0.0001;
+    QString aString= Conversor::convertir(adec);
+    QString bString=Conversor::convertir(bdec);
+    QString bprimString=Conversor::convertir(bprim);
+    QString r2=Conversor::convertir(2.0);
+    //convertir xi+1 -xi a float con el conversot y comparar su valor absoluto con lim
+    QString xInic= Operaciones::multiplicar(aString,bprimString);
+    QString yInic= Operaciones::multiplicar(bString,bprimString);
+    float prueba1=Conversor::convertir2(xInic);
+    float prueba2=Conversor::convertir2(yInic);
+    QString restaString="";
+    float resta=1.0;
+    QString r="";
+    QString yFin="";
+    QString xFin="";
+
+    while(resta>=lim){
+        r=Operaciones::sumar(r2,"1"+yInic.mid(1,31));
+        xFin=Operaciones::multiplicar(xInic,r);
+        yFin=Operaciones::multiplicar(yInic,r);
+        restaString=Operaciones::sumar(xFin,"1"+xInic.mid(1,31));
+        resta=Conversor::convertir2(restaString);
+        if(resta<0){
+            resta=resta*(-1);
+        }
+        xInic=xFin;
+        yInic=yFin;
+
+    }
+
+    QString signoA=num1.mid(0,1);
+    QString signoB=num2.mid(0,1);
+    QString signoF="";
+    if(signoA.toStdString()==signoB.toStdString()){
+        signoF=signoF+"0";
+    }else{
+        signoF=signoF+"1";
+    }
+    QString mantF=xInic.mid(9,23);
+    QString expString1 = num1.mid(1, 8);
+    QString expString2 = num2.mid(1, 8);
+    QString expString3 = xInic.mid(1, 8);
+    std::bitset<8> expbitset1(expString1.toStdString());
+    std::bitset<8> expbitset2(expString2.toStdString());
+    std::bitset<8> expbitset3(expString3.toStdString());
+    unsigned int exp1=expbitset1.to_ulong();
+    unsigned int exp2=expbitset2.to_ulong();
+    unsigned int exp3=expbitset3.to_ulong();
+    int expFinal=exp1-exp2+exp3;
+    std::bitset<8> binaryExp(expFinal);
+    QString expF = QString::fromStdString(binaryExp.to_string());
+    printf("My unsigned int: %f\n", bprim);
+    printf("My unsigned int: %f\n", adec);
+    printf("My unsigned int: %f\n", bdec);
+    std::cout << bString.toStdString() << std::endl;
+    std::cout << aString.toStdString() << std::endl;
+    std::cout << r2.toStdString() << std::endl;
+    printf("My unsigned int: %f\n", prueba1);
+    printf("My unsigned int: %f\n", prueba2);
+
+    return signoF+ expF +mantF;
 }
+
