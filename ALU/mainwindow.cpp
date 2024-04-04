@@ -21,7 +21,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->btnDivision,SIGNAL(clicked()),this, SLOT(convertiraDec()));
 
 
-
 }
 
 MainWindow::~MainWindow()
@@ -41,7 +40,10 @@ void MainWindow::convertiraIEE(){
 
 void MainWindow::convertiraDec(){
     QString num=ui->IEERes->text();
-    if(num=="Inf"){
+    QString subnum=num.mid(1,8);
+    if(subnum.toStdString()=="11111111"){
+        ui->decimalRes->setText("Inf");
+    }else if(num=="Inf"||num=="NaN"||num=="-Inf"){
         ui->decimalRes->setText(num);
     }else{
         float result=Conversor::convertir2(num);
