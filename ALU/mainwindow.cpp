@@ -41,8 +41,14 @@ void MainWindow::convertiraIEE(){
 void MainWindow::convertiraDec(){
     QString num=ui->IEERes->text();
     QString subnum=num.mid(1,8);
+    QString sign=num.mid(0,1);
     if(subnum.toStdString()=="11111111"){
-        ui->decimalRes->setText("Inf");
+        if(sign.toStdString()=="0"){
+            ui->decimalRes->setText("Inf");
+        }else{
+            ui->decimalRes->setText("-Inf");
+        }
+
     }else if(num=="Inf"||num=="NaN"||num=="-Inf"){
         ui->decimalRes->setText(num);
     }else{
