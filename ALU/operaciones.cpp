@@ -28,9 +28,13 @@ QString Operaciones::sumar(QString num1, QString num2) {
     QString expString1 = num1.mid(1, 8);
     QString signoString2 = num2.mid(0, 1);
     QString expString2 = num2.mid(1, 8);
+    std::bitset<8> expbitset2(expString2.toStdString());
+    std::bitset<8> expbitset1(expString1.toStdString());
+    unsigned int exp1=expbitset1.to_ulong();
+    unsigned int exp2=expbitset2.to_ulong();
     QString mantString1="";
     QString mantString2="";
-    if(expString1.toStdString()=="11111111"||expString2.toStdString()=="11111111"&&signoString1==signoString2){
+    if(exp1>254||exp2>254){
         QString infinito="Inf";
         return infinito;
     }
@@ -51,13 +55,10 @@ QString Operaciones::sumar(QString num1, QString num2) {
     }
 
     std::bitset<1> signobitset1(signoString1.toStdString());
-    std::bitset<8> expbitset1(expString1.toStdString());
     std::bitset<24> mantbitset1(mantString1.toStdString());
     std::bitset<1> signobitset2(signoString2.toStdString());
-    std::bitset<8> expbitset2(expString2.toStdString());
+
     std::bitset<24> mantbitset2(mantString2.toStdString());
-    unsigned int exp1=expbitset1.to_ulong();
-    unsigned int exp2=expbitset2.to_ulong();
     unsigned int signo1;
     unsigned int mant1;
     unsigned int signo2;
@@ -342,7 +343,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
         if(acarreo2==1){
             binaryPFinal="1"+binaryPFinal.mid(1,24-1);
             expS=expS+1;
-            //Suma usando exp final
+
         }
         binaryPStringSuma=binaryPFinal;
 
@@ -534,13 +535,13 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
 
 
 
-    //overflow
+
     if (expR>254) {
         QString expMax="11111111";
         return signoF+expMax+P;
     }
 
-    //underflow
+
     if(expR<1) {
         int t = 1-expR;
         if (t >= 24){
@@ -628,20 +629,13 @@ QString Operaciones::dividir(QString num1, QString num2) {
     QString signoString2 = num2.mid(0, 1);
     QString num1prueba = "0"+num1.mid(1, 31);
     QString num2prueba = "0"+num2.mid(1, 31);
-    QString pruebaInic=Operaciones::sumar(num1prueba,num2prueba);
-    if(pruebaInic.toStdString()==num1prueba.toStdString()){
-        if(signoString1.toStdString()==signoString2.toStdString()){
-            QString inf="Inf";
-            return inf;
-        }else{
-            QString inf="-Inf";
-            return inf;
-        }
-
-    }
     QString expnum1String=num1.mid(1,8);
     QString expnum2String=num2.mid(1,8);
-    if(expnum1String.toStdString()=="11111111"||expnum2String.toStdString()=="11111111"){
+    std::bitset<8> expbitsetN2(expnum1String.toStdString());
+    std::bitset<8> expbitsetN1(expnum2String.toStdString());
+    unsigned int expN1=expbitsetN1.to_ulong();
+    unsigned int expN2=expbitsetN2.to_ulong();
+    if(expN1>254||expN2>254){
         QString infinito="Inf";
         return infinito;
     }
@@ -680,8 +674,6 @@ QString Operaciones::dividir(QString num1, QString num2) {
     //convertir xi+1 -xi a float con el conversot y comparar su valor absoluto con lim
     QString xInic= Operaciones::multiplicar(aString,bprimString);
     QString yInic= Operaciones::multiplicar(bString,bprimString);
-    float prueba1=Conversor::convertir2(xInic);
-    float prueba2=Conversor::convertir2(yInic);
     QString restaString="";
     float resta=1.0;
     QString r="";
@@ -723,14 +715,18 @@ QString Operaciones::dividir(QString num1, QString num2) {
     int expFinal=exp1-exp2+exp3;
     std::bitset<8> binaryExp(expFinal);
     QString expF = QString::fromStdString(binaryExp.to_string());
-    printf("My unsigned int: %f\n", bprim);
-    printf("My unsigned int: %f\n", adec);
-    printf("My unsigned int: %f\n", bdec);
-    std::cout << bString.toStdString() << std::endl;
-    std::cout << aString.toStdString() << std::endl;
-    std::cout << r2.toStdString() << std::endl;
-    printf("My unsigned int: %f\n", prueba1);
-    printf("My unsigned int: %f\n", prueba2);
+    if(expFinal>254){
+        if(signoString1.toStdString()==signoString2.toStdString()){
+            QString expInf="11111111";
+            return signoF+ expInf +mantF;
+        }else{
+            QString expInf="11111111";
+            return signoF+ expInf +mantF;
+        }
+
+    }
+
+
 
     return signoF+ expF +mantF;
 }
