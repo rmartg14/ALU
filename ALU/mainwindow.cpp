@@ -42,7 +42,9 @@ void MainWindow::convertiraDec(){
     QString num=ui->IEERes->text();
     QString subnum=num.mid(1,8);
     QString sign=num.mid(0,1);
-    if(subnum.toStdString()=="11111111"){
+    if(sign.toStdString()==" "){
+        ui->decimalRes->setText("NaN");
+    }else if(subnum.toStdString()=="11111111"){
         if(sign.toStdString()=="0"){
             ui->decimalRes->setText("Inf");
         }else{
