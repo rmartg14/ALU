@@ -545,7 +545,8 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     if(expR<1) {
         int t = 1-expR;
         if (t >= 24){
-            return "NaN";
+            QString expMax="11111111";
+            return " "+signoF+expMax+P;
         }else{
             QString aux1="";
             QString aux2="";
