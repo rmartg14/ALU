@@ -18,6 +18,7 @@ QString Operaciones::realizarOperacion(QString num1, QString num2, char operacio
 }
 
 QString Operaciones::sumar(QString num1, QString num2) {
+    //PASO 1
     int P =0;
     int g=0, r=0, st=0;
     int n=24;
@@ -63,6 +64,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
     unsigned int mant1;
     unsigned int signo2;
     unsigned int mant2;
+    //PASO 2
     if(exp2>exp1){
         exp1=expbitset2.to_ulong();
         exp2=expbitset1.to_ulong();
@@ -77,6 +79,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
         signo2=signobitset2.to_ulong();
         mant2=mantbitset2.to_ulong();
     }
+    //PASO 3
     unsigned int expS=exp1;
     unsigned int d=exp1-exp2;
 
@@ -84,7 +87,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
     P=mant2;
     std::bitset<24> binaryValue(P);
     QString binaryPString = QString::fromStdString(binaryValue.to_string());
-
+    //PASO 4 Y 5
     if(signo1!=signo2){
         QString biti="";
         QString temporal="";
@@ -124,7 +127,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
     QString bitG="";
     QString bitR="";
     QString bitST="";
-
+    //PASO 6
     if(d==1){
         bitG=binaryPString.at(24-d);
         if(bitG.toStdString()=="0"){
@@ -186,7 +189,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
         }
     }
 
-
+    //PASO 7
     QString binaryPString2="";
     QString subPbinary="";
     if(signo1!=signo2){
@@ -205,6 +208,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
         binaryPString2=stringCeros+subPbinary;
 
     }
+    //PASO 8
     QString binaryPStringSuma="";
     QString bit1="";
     QString bit2="";
@@ -237,6 +241,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
         }
 
     }
+    //PASO 9
     bit1=binaryPStringSuma.at(0);
     if(signo1!=signo2&&bit1.toStdString()=="1"&&acarreo==0){
         QString biti2="";
@@ -274,7 +279,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
 
         Complementado_P=true;
     }
-
+    //PASO 10
     if(signo1==signo2&&acarreo==1){
         if(g==1||r==1||st==1){
             st=1;
@@ -318,6 +323,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
         binaryPStringSuma=binaryPStringSuma.mid(k,24-k)+strG;
         expS=expS-k;
     }
+    //PASO 11
      bit1=binaryPStringSuma.at(n-1);
     if((r==1&&st==1)||(r==1&&st==0&&bit1.toStdString()=="1")){
         QString binaryPFinal="";
@@ -348,6 +354,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
         binaryPStringSuma=binaryPFinal;
 
     }
+    //PASO 12
     QString mantisaFinal=binaryPStringSuma;
     QString signoF="";
     if(Operandos_intercambiados==false&&Complementado_P==true){
@@ -379,7 +386,7 @@ QString Operaciones::sumar(QString num1, QString num2) {
     }
 
 
-
+    //PASO 13
     return signoF+expFinal+mantisaFinal.mid(1,23);
 }
 
@@ -416,7 +423,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     if(expString1.toStdString()=="00000000"||expString1.toStdString()=="11111111"||expString2.toStdString()=="00000000"||expString2.toStdString()=="11111111"){
         denormal=true;
     }
-    //1
+    // PASO 1
     QString signoF="";
 
     if (signo1==signo2){
@@ -426,11 +433,12 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     }
 
 
-    //2
+    //PASO 2
     int expR;
     expR= 127+(exp1-127) + (exp2 - 127);
 
-    //3
+    //PASO 3
+    //PASO I
     QString P="000000000000000000000000";
     QString A=mantString1;
     QString B=mantString2;
@@ -483,6 +491,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
 
 
     }
+    //PASO II
     bita0=P.at(0);
     if(bita0.toStdString()=="0"){
         bit1=A.at(23);
@@ -492,6 +501,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     }else{
         expR=expR+1;
     }
+    //PASO III
 
     bit1=A.at(0);
     if(bit1.toStdString()=="1"){
@@ -499,7 +509,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
     }else{
         r=0;
     }
-
+    //PASO IV
     for(int i=1;i<24;i++){
         bit2=A.at(i);
         if(bit2=="1"){
@@ -507,6 +517,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
         }
     }
 
+    //PASO V
     bita0=P.at(23);
     if ((r == 1 && st == 1) || (r == 1 && st == 0 && bita0.toStdString()=="1")) {
         QString binaryPFinal="";
@@ -534,7 +545,7 @@ QString Operaciones::multiplicar(QString num1, QString num2) {
 
 
 
-
+    //COMPROBACIONES OVERFLOW UNDERFLOW Y DENORMAL
 
     if (expR>254) {
         QString expMax="11111111";
@@ -640,6 +651,7 @@ QString Operaciones::dividir(QString num1, QString num2) {
         QString infinito="Inf";
         return infinito;
     }
+    //PASO 1
     QString mantString1="1"+num1.mid(9, 23);;
     QString mantString2="1"+num2.mid(9, 23);;
     float bprim=0.0;
@@ -660,19 +672,18 @@ QString Operaciones::dividir(QString num1, QString num2) {
         }
     }
     bdec=1+bdec;
-
+    //PASO 2
     if(bdec>=1.25){
         bprim=0.80;
     }else{
         bprim=1.0;
     }
-
+    //PASO 3
     float lim=0.0001;
     QString aString= Conversor::convertir(adec);
     QString bString=Conversor::convertir(bdec);
     QString bprimString=Conversor::convertir(bprim);
     QString r2=Conversor::convertir(2.0);
-    //convertir xi+1 -xi a float con el conversot y comparar su valor absoluto con lim
     QString xInic= Operaciones::multiplicar(aString,bprimString);
     QString yInic= Operaciones::multiplicar(bString,bprimString);
     QString restaString="";
@@ -680,7 +691,7 @@ QString Operaciones::dividir(QString num1, QString num2) {
     QString r="";
     QString yFin="";
     QString xFin="";
-
+    //PASO 4
     while(resta>=lim){
         r=Operaciones::sumar(r2,"1"+yInic.mid(1,31));
         xFin=Operaciones::multiplicar(xInic,r);
@@ -694,7 +705,7 @@ QString Operaciones::dividir(QString num1, QString num2) {
         yInic=yFin;
 
     }
-
+    //RESULTADOS
     QString signoA=num1.mid(0,1);
     QString signoB=num2.mid(0,1);
     QString signoF="";
