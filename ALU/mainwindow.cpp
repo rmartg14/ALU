@@ -3,7 +3,9 @@
 #include "conversor.h"
 #include "QString"
 #include "operaciones.h"
-
+/*
+ * Autores: Rubén Martínez García y Mario Fernández García
+ */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
